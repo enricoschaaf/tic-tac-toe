@@ -18,10 +18,20 @@ let player
 socket.on("connect", () => {
   socket.emit("JOIN_ROOM", room, () => {
     loading.textContent = "Waiting for another player... Your ID: "
-    const id = document.createElement("a")
-    id.href = "/" + room
-    id.className = "font-bold underline hover:text-blue-400"
+    const id = document.createElement("button")
+    id.className = "font-bold cursor-default"
     id.textContent = room
+
+    if (navigator.clipboard) {
+      id.textContent += " (copy)"
+      id.className += " cursor-pointer underline hover:text-blue-400"
+      id.addEventListener("click", () => {
+        const href = new URL(room, window.location).href
+        navigator.clipboard.writeText(href).then(() => {
+          alert("Copied to clipboard")
+        })
+      })
+    }
     loading.append(id)
   })
 })

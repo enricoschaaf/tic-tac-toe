@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node -r esm server.js",
     "dev": "nodemon -r esm server.js",
-    "css:dev": "postcss tailwind.css -o public/styles.css -w",
-    "css:build": "cross-env NODE_ENV=production postcss tailwind.css -o public/styles.css"
+    "dev:css": "postcss tailwind.css -o public/styles.css -w",
+    "build:css": "cross-env NODE_ENV=production postcss tailwind.css -o public/styles.css"
   },
   "keywords": [],
   "author": "",
