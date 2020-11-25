@@ -33,7 +33,8 @@ socket.on("UPDATE", render)
 
 function startGame(nextState) {
   $("#loading").remove()
-  $("main").hidden = false
+  $("main").classList.remove('hidden')
+  $("main").classList.add('flex')
   render(nextState)
 }
 
