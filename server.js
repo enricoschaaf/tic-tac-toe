@@ -33,9 +33,10 @@ app.get("/:roomId", (_req, res) => {
 })
 
 io.on("connection", (socket) => {
-  socket.on("JOIN_ROOM", (roomId) => {
+  socket.on("JOIN_ROOM", (roomId, cb) => {
     if (!rooms.has(roomId)) {
       socket.join(roomId)
+      cb();
       const room = new Room()
       socket.emit("PLAYER", "x")
       room.players.x = socket.id
@@ -48,6 +49,7 @@ io.on("connection", (socket) => {
       }
 
       socket.join(roomId)
+      cb();
       socket.emit("PLAYER", "o")
       room.players.o = socket.id
       room.state.status = "started"

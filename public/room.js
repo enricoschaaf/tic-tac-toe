@@ -4,6 +4,7 @@ const room = window.location.pathname.slice(1)
 const main = $("main")
 const youAre = $("#player")
 const overMessage = $("#over-message")
+const loading = $("#loading")
 const currentPlayer = $("#current-player")
 const gameContainer = $("#game-container")
 const buttons = [...Array(9)].map(() => document.createElement("button"))
@@ -15,7 +16,14 @@ const socket = io()
 let player
 
 socket.on("connect", () => {
-  socket.emit("JOIN_ROOM", room)
+  socket.emit("JOIN_ROOM", room, () => {
+    loading.textContent = "Waiting for another player... Your ID: "
+    const id = document.createElement("a")
+    id.href = "/" + room
+    id.className = "font-bold underline hover:text-blue-400"
+    id.textContent = room
+    loading.append(id)
+  })
 })
 
 socket.on("ROOM_FULL", () => {
@@ -32,9 +40,9 @@ socket.on("PLAYER", (nextPlayer) => (player = nextPlayer))
 socket.on("UPDATE", render)
 
 function startGame(nextState) {
-  $("#loading").remove()
-  $("main").classList.remove('hidden')
-  $("main").classList.add('flex')
+  loading.remove()
+  $("main").classList.remove("hidden")
+  $("main").classList.add("flex")
   render(nextState)
 }
 
