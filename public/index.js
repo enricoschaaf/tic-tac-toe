@@ -1,4 +1,4 @@
-import { nanoid } from 'https://cdn.jsdelivr.net/npm/nanoid/nanoid.js'
+import { nanoid } from 'https://cdn.skypack.dev/nanoid/nanoid.js'
 
 const form = document.querySelector('#join-form')
 

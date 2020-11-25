@@ -4,8 +4,8 @@ module.exports = {
   plugins: {
     tailwindcss: {},
     autoprefixer: {},
-    ...isProd && {
-      cssnano: { preset: 'default' }
-    }
+    ...(isProd && {
+      cssnano: { preset: 'default' },
+    }),
   },
 }
