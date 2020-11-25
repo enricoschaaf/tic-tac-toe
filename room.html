@@ -28,15 +28,17 @@
   <body class="flex flex-col justify-center min-h-screen align-center">
     <p class="mx-auto" role="status" id="loading">Loading...</p>
 
-    <main class="flex-col items-center hidden mx-auto">
+    <main id="main" class="flex-col items-center hidden mx-auto">
       <h1 id="title" class="text-lg font-bold">Tic Tac Toe</h1>
-      <p class="js-no-over"><span id="player" /></p>
 
-      <p class="js-no-over">
-        <span id="current-player" />
-      </p>
+      <p>You play as <span id="player" class="font-bold"></span>.</p>
+      <p id="current-player"></p>
 
       <div class="grid grid-cols-3 grid-rows-3" id="game-container"></div>
+
+      <button id="restart" class="p-2 px-4 mt-4 bg-blue-100 border-2 border-blue-400 rounded">
+        Restart
+      </button>
     </main>
 
     <script type="module" src="./room.js"></script>

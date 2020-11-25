@@ -9,14 +9,14 @@ const server = http.createServer(app)
 const PORT = process.env.PORT || 3000
 
 const getInitialState = () => ({
-  player: Math.random() > 0.5 ? 'x' : 'o',
-  tiles: Array.from(Array(9), () => null),
   status: 'idle',
+  tiles: [...Array(9)].map(() => null),
+  currentPlayer: Math.random() > 0.5 ? 'x' : 'o',
   winningPlayer: null,
 })
 
 class Room {
-  players = { x: null, o: null }
+  playerIds = { x: null, o: null }
   state = getInitialState()
 }
 
@@ -31,14 +31,14 @@ app.get('/:roomId', (_req, res) => {
 })
 
 io.on('connection', (socket) => {
-  socket.on('JOIN_ROOM', (roomId, successCallback) => {
+  socket.on('JOIN_ROOM', (roomId) => {
     if (!rooms.has(roomId)) {
       socket.join(roomId)
-      successCallback()
       const room = new Room()
-      socket.emit('PLAYER', 'x')
-      room.players.x = socket.id
+      socket.emit('PLAYER_ASSIGNED', 'x')
       rooms.set(roomId, room)
+      room.playerIds.x = socket.id
+      io.to(roomId).emit('UPDATE_STATE', room.state)
     } else {
       const room = rooms.get(roomId)
 
@@ -47,12 +47,10 @@ io.on('connection', (socket) => {
       }
 
       socket.join(roomId)
-      successCallback()
-      socket.emit('PLAYER', 'o')
-      room.players.o = socket.id
+      socket.emit('PLAYER_ASSIGNED', 'o')
+      room.playerIds.o = socket.id
       room.state.status = 'started'
-
-      io.to(roomId).emit('START', room.state)
+      io.to(roomId).emit('UPDATE_STATE', room.state)
     }
 
     socket.on('disconnect', () => {
@@ -60,31 +58,31 @@ io.on('connection', (socket) => {
       rooms.delete(roomId)
     })
 
-    socket.on('CLICK', (index) => {
+    socket.on('TILE_CLICKED', (index) => {
       const room = rooms.get(roomId)
-      const player = room.players.x === socket.id ? 'x' : 'o'
+      const player = room.playerIds.x === socket.id ? 'x' : 'o'
 
-      if (player !== room.state.player) return
+      if (player !== room.state.currentPlayer) return
       if (room.state.status !== 'started') return
 
       room.state.tiles[index] = player
-      room.state.player = player === 'x' ? 'o' : 'x'
+      room.state.currentPlayer = player === 'x' ? 'o' : 'x'
 
       const [status, winningPlayer] = getStatusFromTiles(room.state.tiles)
 
       room.state.status = status
       room.state.winningPlayer = winningPlayer
 
-      io.to(roomId).emit('UPDATE', room.state)
+      io.to(roomId).emit('UPDATE_STATE', room.state)
     })
 
-    socket.on('RESTART', () => {
+    socket.on('RESTART_GAME', () => {
       const room = rooms.get(roomId)
 
       if (room.state.status === 'over') {
         room.state = getInitialState()
         room.state.status = 'started'
-        io.to(roomId).emit('UPDATE', room.state)
+        io.to(roomId).emit('UPDATE_STATE', room.state)
       }
     })
   })
@@ -111,9 +109,9 @@ function getStatusFromTiles(tiles) {
     }
   }
 
-  if (tiles.every((item) => item !== null)) return ['over']
+  if (tiles.every((item) => item !== null)) return ['over', null]
 
-  return ['started']
+  return ['started', null]
 }
 
 server.listen(PORT, () => console.log(`Server is running on ${PORT}.`))

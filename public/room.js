@@ -1,107 +1,122 @@
 import io from 'https://cdn.skypack.dev/socket.io-client/dist/socket.io.min'
 
 const $ = document.querySelector.bind(document)
-const $$ = document.querySelectorAll.bind(document)
-
-const room = window.location.pathname.slice(1)
-
-const main = $('main')
-const youAre = $('#player')
-const loading = $('#loading')
-const currentPlayer = $('#current-player')
-const gameContainer = $('#game-container')
-const noOverElements = $$('.js-no-over')
-const title = $('#title')
-const buttons = [...Array(9)].map(() => document.createElement('button'))
-
-document.title += ` (${room})`
+const create = (tag, attrs = {}) => Object.assign(document.createElement(tag), attrs)
 
 const socket = io()
+const roomId = window.location.pathname.slice(1)
 
-let player
+let player = null
 
-socket.on('connect', () => {
-  socket.emit('JOIN_ROOM', room, () => {
-    loading.textContent = 'Waiting for another player... Your ID: '
-    const id = document.createElement('button')
-    id.className = 'font-bold cursor-default'
-    id.textContent = room
+document.title += ` (${roomId})`
 
-    if (navigator.clipboard) {
-      id.textContent += ' (copy)'
-      id.className += ' cursor-pointer underline hover:text-blue-400'
-      id.addEventListener('click', () => {
-        const href = new URL(room, window.location).href
-        navigator.clipboard.writeText(href).then(() => alert('Copied to clipboard'))
-      })
-    }
-    loading.append(id)
+const $main = $('#main')
+const $gameContainer = $('#game-container')
+const $restartButton = $('#restart')
+const $player = $('#player')
+const $loading = $('#loading')
+const $currentPlayer = $('#current-player')
+const $title = $('#title')
+const $buttons = [...Array(9)].map((_, index) => {
+  return create('button', {
+    className: `w-12 h-12 border border-black disabled:cursor-none disabled:bg-gray-200`,
+    onclick: () => socket.emit('TILE_CLICKED', index),
   })
 })
 
-socket.on('ROOM_FULL', () => {
-  alert('Room already full!')
+$restartButton.addEventListener('click', () => socket.emit('RESTART_GAME'))
+$gameContainer.append(...$buttons)
+
+socket.on('connect', () => socket.emit('JOIN_ROOM', roomId))
+
+socket.on('disconnect', () => {
+  alert('You are no longer connected to the game room.')
   window.location = '/'
 })
 
-socket.on('DELETE_ROOM', () => (window.location = '/'))
+socket.on('ROOM_FULL', () => {
+  alert('The game room is already full!')
+  window.location = '/'
+})
 
-socket.on('START', startGame)
+socket.on('DELETE_ROOM', () => {
+  alert('Your opponent left the game!')
+  window.location = '/'
+})
 
-socket.on('PLAYER', (nextPlayer) => (player = nextPlayer))
+socket.on('PLAYER_ASSIGNED', (nextPlayer) => (player = nextPlayer))
 
-socket.on('UPDATE', render)
+socket.on('UPDATE_STATE', (state) => {
+  window.state = state
+  renderMain(state)
+  renderLoading(state)
+  renderPlayer(state)
+  renderCurrentPlayer(state)
+  renderButtons(state)
+  renderOver(state)
+})
 
-function startGame(nextState) {
-  loading.remove()
-  main.classList.remove('hidden')
-  main.classList.add('flex')
-  render(nextState)
+function renderMain({ status }) {
+  $main.classList.toggle('hidden', status === 'idle')
+  $main.classList.toggle('flex', status !== 'idle')
 }
 
-let restartButton
-function render(state) {
-  if (state.status === 'over') {
-    let msg = 'Nobody won.'
-    if (state.winningPlayer) {
-      msg = state.winningPlayer === player ? 'You won!' : 'You lost.'
-    }
-    title.textContent = msg
+function renderLoading({ status }) {
+  $loading.classList.toggle('hidden', status !== 'idle')
+  if (status !== 'idle') return
 
-    restartButton = document.createElement('button')
-    restartButton.className = 'p-2 px-4 mx-auto mt-4 bg-blue-100 border-2 border-blue-400 rounded'
-    restartButton.textContent = 'Restart'
-    restartButton.addEventListener('click', () => socket.emit('RESTART'))
-    document.body.append(restartButton)
-  } else {
-    if (restartButton) restartButton.remove()
-    title.textContent = 'Tic Tac Toe'
+  $loading.textContent = 'Waiting for another player... Your ID: '
+
+  const canCopy = Boolean(navigator.clipboard)
+
+  const id = canCopy ? create('button') : create('span', { className: 'font-bold' })
+  id.textContent = roomId
+
+  if (canCopy) {
+    id.textContent += ' (copy)'
+    id.className += ' font-bold cursor-pointer underline hover:text-blue-400'
+    id.addEventListener('click', () => {
+      const href = new URL(roomId, window.location).href
+      navigator.clipboard.writeText(href).then(() => {
+        id.textContent = id.textContent.replace('(copy)', '(copied ✔)')
+      })
+    })
   }
 
-  noOverElements.forEach((el) => el.classList.toggle('hidden', state.status === 'over'))
+  $loading.append(id)
+}
 
-  youAre.innerHTML = `You play as <span class="font-bold">${player}</span>.`
-  currentPlayer.textContent = player === state.player ? "It's your turn." : 'Wait for your turn...'
+function renderPlayer({ status }) {
+  $player.parentElement.classList.toggle('hidden', status === 'over')
+  if (status === 'over') return
 
-  for (const [index, button] of buttons.entries()) {
-    button.disabled = state.player !== player || state.tiles[index]
+  $player.textContent = player
+}
 
-    if (state.tiles[index]) {
-      button.textContent = state.tiles[index]
-    } else {
-      button.textContent = ''
-    }
+function renderCurrentPlayer({ status, currentPlayer }) {
+  $currentPlayer.classList.toggle('hidden', status === 'over')
+  if (status === 'over') return
+
+  const isCurrentPlayer = player === currentPlayer
+  $currentPlayer.textContent = isCurrentPlayer ? "It's your turn." : 'Wait for your turn...'
+}
+
+function renderButtons({ status, currentPlayer, tiles }) {
+  for (const [index, button] of $buttons.entries()) {
+    const tileValue = tiles[index]
+    button.disabled = status !== 'started' || currentPlayer !== player || tileValue !== null
+    button.textContent = tileValue || ''
   }
 }
 
-function handleButtonClick(tileId) {
-  socket.emit('CLICK', tileId)
-}
+function renderOver({ status, winningPlayer }) {
+  $restartButton.classList.toggle('hidden', status !== 'over')
 
-for (const [index, button] of buttons.entries()) {
-  button.className =
-    'w-12 h-12 border border-black grid-row-3 grid-col-3 disabled:cursor-none disabled:bg-gray-200'
+  let msg = 'Tic Tac Toe'
 
-  button.addEventListener('click', () => handleButtonClick(index))
-  gameContainer.append(button)
+  if (status === 'over') {
+    msg = winningPlayer ? (winningPlayer === player ? 'You won!' : 'You lost.') : 'Nobody won.'
+  }
+
+  $title.textContent = msg
 }
