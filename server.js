@@ -33,10 +33,10 @@ app.get("/:roomId", (_req, res) => {
 })
 
 io.on("connection", (socket) => {
-  socket.on("JOIN_ROOM", (roomId, cb) => {
+  socket.on("JOIN_ROOM", (roomId, successCallback) => {
     if (!rooms.has(roomId)) {
       socket.join(roomId)
-      cb();
+      successCallback()
       const room = new Room()
       socket.emit("PLAYER", "x")
       room.players.x = socket.id
@@ -49,7 +49,7 @@ io.on("connection", (socket) => {
       }
 
       socket.join(roomId)
-      cb();
+      successCallback()
       socket.emit("PLAYER", "o")
       room.players.o = socket.id
       room.state.status = "started"
@@ -66,17 +66,18 @@ io.on("connection", (socket) => {
       const room = rooms.get(roomId)
       const player = room.players.x === socket.id ? "x" : "o"
 
-      if (player === room.state.player) {
-        room.state.tiles[index] = player
-        room.state.player = player === "x" ? "o" : "x"
+      if (player !== room.state.player) return
+      if (room.state.status !== "started") return
 
-        const [status, winningPlayer] = getStatusFromTiles(room.state.tiles)
+      room.state.tiles[index] = player
+      room.state.player = player === "x" ? "o" : "x"
 
-        room.state.status = status
-        room.state.winningPlayer = winningPlayer
+      const [status, winningPlayer] = getStatusFromTiles(room.state.tiles)
 
-        io.to(roomId).emit("UPDATE", room.state)
-      }
+      room.state.status = status
+      room.state.winningPlayer = winningPlayer
+
+      io.to(roomId).emit("UPDATE", room.state)
     })
 
     socket.on("RESTART", () => {

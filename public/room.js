@@ -1,4 +1,5 @@
 const $ = document.querySelector.bind(document)
+const $$ = document.querySelectorAll.bind(document)
 const room = window.location.pathname.slice(1)
 
 const main = $("main")
@@ -7,6 +8,8 @@ const overMessage = $("#over-message")
 const loading = $("#loading")
 const currentPlayer = $("#current-player")
 const gameContainer = $("#game-container")
+const noOverElements = $$(".js-no-over")
+const headline = $("#title")
 const buttons = [...Array(9)].map(() => document.createElement("button"))
 
 document.title += ` (${room})`
@@ -27,9 +30,9 @@ socket.on("connect", () => {
       id.className += " cursor-pointer underline hover:text-blue-400"
       id.addEventListener("click", () => {
         const href = new URL(room, window.location).href
-        navigator.clipboard.writeText(href).then(() => {
-          alert("Copied to clipboard")
-        })
+        navigator.clipboard
+          .writeText(href)
+          .then(() => alert("Copied to clipboard"))
       })
     }
     loading.append(id)
@@ -59,7 +62,7 @@ function startGame(nextState) {
 let restartButton
 function render(state) {
   if (state.status === "over") {
-    overMessage.textContent = `Over! ${
+    title.textContent = `Over! ${
       state.winningPlayer
         ? state.winningPlayer === player
           ? "You"
@@ -68,15 +71,19 @@ function render(state) {
     } won!`
 
     restartButton = document.createElement("button")
-    restartButton.textContent = "RESTART!!!!!!"
-    restartButton.addEventListener("click", () => {
-      socket.emit("RESTART")
-    })
-    document.body.prepend(restartButton)
+    restartButton.className =
+      "mx-auto mt-4 border-2 border-blue-400 rounded p-2 px-4 bg-blue-100"
+    restartButton.textContent = "Restart"
+    restartButton.addEventListener("click", () => socket.emit("RESTART"))
+    document.body.append(restartButton)
   } else {
     if (restartButton) restartButton.remove()
-    overMessage.textContent = ""
+    title.textContent = "Tic Tac Toe"
   }
+
+  noOverElements.forEach((el) =>
+    el.classList.toggle("hidden", state.status === "over"),
+  )
 
   youAre.textContent = player
   currentPlayer.textContent = state.player

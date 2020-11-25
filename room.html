@@ -18,12 +18,12 @@
     <p class="mx-auto" role="status" id="loading">Loading...</p>
 
     <main class="mx-auto hidden flex-col items-center">
-      <h1>Tic Tac Toe</h1>
-      <p>You are: <span id="player"></span></p>
+      <h1 id="title" class="font-bold text-lg">Tic Tac Toe</h1>
+      <p class="js-no-over">You are: <span id="player"></span></p>
 
-      <p>Current player: <span id="current-player"></span></p>
-
-      <p id="over-message"></p>
+      <p class="js-no-over">
+        Current player: <span id="current-player"></span>
+      </p>
 
       <div class="grid grid-cols-3 grid-rows-3" id="game-container"></div>
     </main>
