@@ -25,5 +25,10 @@
     "cssnano": "^4.1.10",
     "nodemon": "^2.0.6",
     "postcss-cli": "^8.3.0"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "trailingComma": "all"
   }
 }
