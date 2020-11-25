@@ -1,17 +1,15 @@
 module.exports = {
-  purge: ["**/*.html", "**/*.js"],
-  darkMode: false, // or 'media' or 'class'
+  purge: ['**/*.html', '**/*.js'],
+  darkMode: false,
   theme: {
     extend: {
-      fontFamily: {
-        sans: ["Inter"],
-      },
+      fontFamily: { sans: ['Inter'] },
     },
   },
   variants: {
     extend: {
-      backgroundColor: ["disabled"],
-      cursor: ["disabled"],
+      backgroundColor: ['disabled'],
+      cursor: ['disabled'],
     },
   },
   plugins: [],
