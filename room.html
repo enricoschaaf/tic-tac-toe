@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="https://unpkg.com/socket.io-client@3.0.3/dist/socket.io.js"></script>
+    <link
+      rel="preload"
+      as="font"
+      href="/Inter.var.latin.woff2"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+    <title>Tic Tac Toe</title>
+  </head>
+  <body class="flex flex-col justify-center align-center min-h-screen">
+    <p class="mx-auto" role="status" id="loading">Loading...</p>
+
+    <main hidden class="mx-auto">
+      <h1>Tic Tac Toe</h1>
+      <p>You are: <span id="player"></span></p>
+
+      <p>Current player: <span id="current-player"></span></p>
+
+      <p id="over-message"></p>
+
+      <div class="grid grid-cols-3 grid-rows-3" id="game-container"></div>
+    </main>
+
+    <script type="module" src="./room.js"></script>
+  </body>
+</html>

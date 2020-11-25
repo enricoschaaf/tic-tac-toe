@@ -1,0 +1,29 @@
+{
+  "name": "tac-tac-toe",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node -r esm server.js",
+    "dev": "nodemon -r esm server.js",
+    "css:dev": "postcss tailwind.css -o public/styles.css -w",
+    "css:build": "cross-env NODE_ENV=production postcss tailwind.css -o public/styles.css"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "autoprefixer": "^10.0.2",
+    "esm": "^3.2.25",
+    "express": "^4.17.1",
+    "postcss": "^8.1.10",
+    "socket.io": "^3.0.3",
+    "tailwindcss": "^2.0.1"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.2",
+    "cssnano": "^4.1.10",
+    "nodemon": "^2.0.6",
+    "postcss-cli": "^8.3.0"
+  }
+}

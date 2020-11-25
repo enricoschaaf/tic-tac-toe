@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tic Tac Toe</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/water.css@2.0.0/out/water.min.css"
+    />
+  </head>
+
+  <body>
+    <main>
+      <h1>Tic Tac Toe</h1>
+
+      <h2>Create a new room:</h2>
+      <a href="#" id="create-room">Create room!</a>
+
+      <br />
+      <br />
+
+      <h2>Or join an existing one:</h2>
+
+      <form id="join-form">
+        <fieldset>
+          <label>
+            Enter room ID:
+            <input required name="id" type="text" />
+          </label>
+        </fieldset>
+
+        <button type="submit">Join!</button>
+      </form>
+    </main>
+
+    <script type="module" src="./index.js"></script>
+  </body>
+</html>

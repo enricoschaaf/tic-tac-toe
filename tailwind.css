@@ -1,0 +1,11 @@
+@font-face {
+  font-family: "Inter";
+  font-weight: 100 900;
+  font-style: oblique 0deg 10deg;
+  font-display: swap;
+  src: url("/Inter.var.latin.woff2") format("woff2");
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
