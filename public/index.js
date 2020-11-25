@@ -6,6 +6,13 @@ document.querySelector("#create-room").href = nanoid(5)
 
 form.addEventListener("submit", (event) => {
   event.preventDefault()
-  window.location = event.target.id.value
+  
+  let id = event.target.id.value
+  
+  if (id.match(/^https?:\/\//)) {
+    id = new URL(id).pathname.slice(1)
+  }
+  
+  window.location = id
 })
 
