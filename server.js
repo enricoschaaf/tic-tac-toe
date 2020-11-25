@@ -115,4 +115,7 @@ function getStatusFromTiles(tiles) {
   return ["started"]
 }
 
-server.listen(PORT, () => !isProd && console.log("Server is running."))
+server.listen(
+  PORT,
+  () => !isProd && console.log(`Server is running on ${PORT}.`),
+)
