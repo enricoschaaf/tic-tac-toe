@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "target": "es2020",
+    "checkJs": true,
+    "noImplicitAny": true,
+    "esModuleInterop": true,
+    "paths": {
+      "https://cdn.skypack.dev/socket.io-client/dist/socket.io.min": [
+        "node_modules/socket.io/client-dist/socket.io.js"
+      ]
+    }
+  }
+}
