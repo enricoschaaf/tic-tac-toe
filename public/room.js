@@ -40,7 +40,10 @@ $gameContainer.append(...$buttons)
 
 let prevId = /** @type {string} */ (null)
 
-socket.on('connect', () => socket.emit('JOIN_ROOM', roomId, prevId))
+socket.on('connect', () => {
+  socket.emit('JOIN_ROOM', roomId, prevId)
+  prevId = socket.id
+})
 
 socket.on('disconnect', () => {
   renderReconnect('offline')
@@ -62,9 +65,6 @@ socket.on('PLAYER_ASSIGNED', (/** @type {import('../server').Player} */ nextPlay
 })
 
 socket.on('UPDATE_STATE', (/** @type {import('../server').State} */ state) => {
-  // Once the game starts, store the socketId so that we can rejoin in case of a disconnect
-  if (state.status !== 'idle') prevId = socket.id
-
   renderMain(state)
   renderLoading(state)
   renderReconnect(state.status)
