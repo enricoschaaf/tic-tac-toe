@@ -1,4 +1,4 @@
-import _io from 'https://cdn.skypack.dev/socket.io-client/dist/socket.io.min'
+import _io from 'https://cdn.skypack.dev/pin/socket.io-client@v4.4.1-pEjk4e0IcGsxDJ4ZWnD7/mode=raw,min/dist/socket.io.esm.min.js'
 
 const io = /** @type {import('socket.io-client')} */ (/** @type {unknown}*/ (_io))
 
